@@ -1,7 +1,7 @@
 [project]
 name = "invoice-extractor"
 version = "0.1.0"
-description = "Add your description here"
+description = "Extracts invoice data from PDFs with AI and checks that the numbers add up"
 readme = "README.md"
 authors = [
     { name = "Francisco Netto", email = "franciscojdsnetto@gmail.com" }
@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.13"
 dependencies = [
     "pydantic>=2.14.2",
+    "pypdf>=6.21.4",
 ]
 
 [project.scripts]
@@ -20,6 +21,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "fpdf2>=2.9.0",
     "pytest>=9.2.0",
     "ruff>=0.17.3",
 ]
