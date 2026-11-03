@@ -15,11 +15,27 @@ look wrong. Write dates as YYYY-MM-DD and amounts as plain numbers, without \
 currency symbols or thousands separators (for example, "R$ 1.234,56" \
 becomes 1234.56)."""
 
+RETRY = types.HttpRetryOptions(
+    attempts=5, initial_delay=4.0, http_status_codes=[429, 500, 502, 503, 504]
+)
+
+
 class ExtractionError(Exception):
     """Raised when the AI response cannot be turned into a valid Invoice."""
 
+
 class InvoiceExtractor(Protocol):
     def extract(self, text: str) -> Invoice: ...
+
+    def extract_pdf(self, data: bytes) -> Invoice: ...
+
+
+def make_client(api_key: str) -> genai.Client:
+    """Gemini client that retries rate limits (429) and server errors."""
+    return genai.Client(
+        api_key=api_key, http_options=types.HttpOptions(retry_options=RETRY)
+    )
+
 
 class GeminiExtractor:
     def __init__(self, client: genai.Client, model: str = DEFAULT_MODEL) -> None:
@@ -27,9 +43,17 @@ class GeminiExtractor:
         self.model = model
 
     def extract(self, text: str) -> Invoice:
+        return self._generate(text)
+
+    def extract_pdf(self, data: bytes) -> Invoice:
+        """For scanned PDFs without a text layer: the model reads the pages."""
+        pdf = types.Part.from_bytes(data=data, mime_type="application/pdf")
+        return self._generate([pdf])
+
+    def _generate(self, contents: str | list[types.Part]) -> Invoice:
         response = self.client.models.generate_content(
             model=self.model,
-            contents=text,
+            contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=INSTRUCTIONS,
                 response_mime_type="application/json",

@@ -69,3 +69,12 @@ def test_raises_when_response_is_not_a_valid_invoice():
 
     with pytest.raises(ExtractionError, match="not a valid invoice"):
         extractor.extract("invoice text")
+
+def test_scanned_pdf_is_sent_as_a_pdf_part():
+    extractor, models = make_extractor(VALID_RESPONSE)
+
+    extractor.extract_pdf(b"%PDF-1.4 fake")
+
+    [part] = models.calls[0]["contents"]
+    assert part.inline_data.mime_type == "application/pdf"
+    assert part.inline_data.data == b"%PDF-1.4 fake"
