@@ -1,36 +1,11 @@
 from decimal import Decimal
 
-from invoice_extractor.models import Invoice, LineItem
+from factories import make_invoice
+
+from invoice_extractor.models import LineItem
 from invoice_extractor.validation import find_issues
 
 
-def make_invoice(**overrides) -> Invoice:
-    data = {
-        "invoice_number": "INV-001",
-        "issue_date": "2026-10-15",
-        "vendor_name": "Acme Supplies",
-        "customer_name": "Blue Bakery",
-        "currency": "USD",
-        "line_items": [
-            LineItem(
-                description="Flour",
-                quantity=Decimal("2"),
-                unit_price=Decimal("10.50"),
-                amount=Decimal("21.00"),
-            ),
-            LineItem(
-                description="Sugar",
-                quantity=Decimal("1"),
-                unit_price=Decimal("4.00"),
-                amount=Decimal("4.00"),
-            ),
-        ],
-        "subtotal": Decimal("25.00"),
-        "tax": Decimal("2.50"),
-        "total": Decimal("27.50"),
-    }
-    data.update(overrides)
-    return Invoice(**data)
 
 
 def test_consistent_invoice_has_no_issues():
