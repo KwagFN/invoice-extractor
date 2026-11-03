@@ -11,6 +11,7 @@ from .validation import find_issues
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass(frozen=True)
 class Result:
     path: Path
@@ -26,6 +27,7 @@ class Result:
             return "NEEDS REVIEW"
         return "OK"
 
+
 def process_file(path: Path, extractor: InvoiceExtractor) -> Result:
     try:
         text = extract_text(path)
@@ -39,6 +41,7 @@ def process_file(path: Path, extractor: InvoiceExtractor) -> Result:
         return Result(path, error=f"{type(exc).__name__}: {exc}")
 
     return Result(path, invoice, tuple(find_issues(invoice)))
+
 
 def process_folder(
     folder: Path,

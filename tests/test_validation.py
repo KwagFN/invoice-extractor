@@ -6,8 +6,6 @@ from invoice_extractor.models import LineItem
 from invoice_extractor.validation import find_issues
 
 
-
-
 def test_consistent_invoice_has_no_issues():
     assert find_issues(make_invoice()) == []
 

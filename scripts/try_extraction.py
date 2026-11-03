@@ -9,6 +9,7 @@ from invoice_extractor.ai import DEFAULT_MODEL, GeminiExtractor
 from invoice_extractor.pdf_text import extract_text
 from invoice_extractor.validation import find_issues
 
+
 def main() -> None:
     load_dotenv()
     pdf_path = Path(sys.argv[1])

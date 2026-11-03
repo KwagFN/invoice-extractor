@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from invoice_extractor.models import Invoice, LineItem
 
+
 def make_invoice(**overrides) -> Invoice:
     """A consistent invoice by default; each test overrides only what it checks."""
     data = {

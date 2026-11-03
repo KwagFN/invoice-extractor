@@ -22,6 +22,7 @@ VALID_RESPONSE = """
 }
 """
 
+
 class FakeModels:
     """Stands in for client.models: records each call and returns a fixed text."""
 
@@ -33,10 +34,12 @@ class FakeModels:
         self.calls.append(kwargs)
         return SimpleNamespace(text=self.response_text)
 
+
 def make_extractor(response_text):
     models = FakeModels(response_text)
     client = SimpleNamespace(models=models)
     return GeminiExtractor(client, model="test-model"), models
+
 
 def test_returns_validated_invoice():
     extractor, _ = make_extractor(VALID_RESPONSE)
@@ -45,6 +48,7 @@ def test_returns_validated_invoice():
 
     assert invoice.invoice_number == "INV-1001"
     assert invoice.total == Decimal("81.65")
+
 
 def test_sends_text_schema_and_instructions_to_the_model():
     extractor, models = make_extractor(VALID_RESPONSE)
@@ -58,17 +62,20 @@ def test_sends_text_schema_and_instructions_to_the_model():
     assert call["config"].response_json_schema == Invoice.model_json_schema()
     assert "do not calculate, correct or round" in call["config"].system_instruction
 
+
 def test_raises_on_empty_response():
     extractor, _ = make_extractor(None)
 
     with pytest.raises(ExtractionError, match="empty response"):
         extractor.extract("invoice text")
 
+
 def test_raises_when_response_is_not_a_valid_invoice():
     extractor, _ = make_extractor('{"invoice_number": "INV-1001"}')
 
     with pytest.raises(ExtractionError, match="not a valid invoice"):
         extractor.extract("invoice text")
+
 
 def test_scanned_pdf_is_sent_as_a_pdf_part():
     extractor, models = make_extractor(VALID_RESPONSE)
